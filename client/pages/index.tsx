@@ -1,21 +1,19 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { useWallet } from "@solana/wallet-adapter-react";
+import HomePage from "@/components/Homepage";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export default function Home() {
-  return (
-    <div
-      className={`${geistSans.className} ${geistMono.className} flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black`}
-    >
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start"></main>
-    </div>
-  );
+  const { connecting } = useWallet();
+  // derive loading state from connecting instead of local state to avoid synchronous setState in effect
+  const isLoading = connecting;
+
+  if (isLoading || connecting) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
+        Loading...
+      </div>
+    );
+  }
+
+  return <HomePage />;
 }
