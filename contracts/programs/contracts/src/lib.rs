@@ -9,7 +9,7 @@ use instructions::*;
 declare_id!("7LgKNYLik7m5XNsYa92u7MSvcnDmyxkAYJqAFdRmbqGS");
 
 #[program]
-pub mod contracts {
+pub mod payroll_program {
     use super::*;
 
     pub fn create_org(ctx: Context<CreateOrgCtx>, name: String) -> Result<()> {
