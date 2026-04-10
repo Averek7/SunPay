@@ -9,7 +9,7 @@ skip-lint = false
 contracts = "7LgKNYLik7m5XNsYa92u7MSvcnDmyxkAYJqAFdRmbqGS"
 
 [programs.devnet]
-anchor = "7LgKNYLik7m5XNsYa92u7MSvcnDmyxkAYJqAFdRmbqGS"
+contracts = "7LgKNYLik7m5XNsYa92u7MSvcnDmyxkAYJqAFdRmbqGS"
 
 [registry]
 url = "https://api.apr.dev"

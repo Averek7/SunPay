@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_lang::system_program;
-use crate::errors::PayrollError;
+use crate::error::PayrollError;
 use crate::states::Organization;
 
 pub fn fund_treasury(ctx: Context<FundTreasuryCtx>, amount: u64) -> Result<()> {
@@ -16,7 +16,12 @@ pub fn fund_treasury(ctx: Context<FundTreasuryCtx>, amount: u64) -> Result<()> {
     );
     system_program::transfer(cpi_ctx, amount)?;
 
-    ctx.accounts.org.treasury += amount;
+    ctx.accounts.org.treasury = ctx
+        .accounts
+        .org
+        .treasury
+        .checked_add(amount)
+        .ok_or(PayrollError::InvalidAmount)?;
     msg!("Treasury funded by {} lamports", amount);
     Ok(())
 }

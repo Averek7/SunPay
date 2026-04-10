@@ -700,27 +700,27 @@ const Dashboard = () => {
       <main className="max-w-[95vw] lg:max-w-[75vw] mx-auto px-3 sm:px-6 pb-6 mt-4 sm:mt-8">
         <div className="max-w-full min-h-[calc(100vh-35rem)] flex flex-col lg:flex-row gap-4 sm:gap-6">
           <ChatPanel
-          // messages={messages}
-          // input={input}
-          // isLoading={isLoading || !apiKeySet}
-          // isPayrollOpen={isPayrollOpen}
-          // publicKey={publicKey}
-          // onInputChange={setInput}
-          // onSubmit={handleSubmit}
-          // apiKeySet={apiKeySet}
-          // userApiKey={userApiKey}
-          // onApiKeyChange={setUserApiKey}
-          // onApiKeySubmit={handleApiKeySubmit}
+            messages={messages}
+            input={input}
+            isLoading={isLoading || !apiKeySet}
+            isPayrollOpen={isPayrollOpen}
+            publicKey={publicKey}
+            onInputChange={setInput}
+            onSubmit={handleSubmit}
+            apiKeySet={apiKeySet}
+            userApiKey={userApiKey}
+            onApiKeyChange={setUserApiKey}
+            onApiKeySubmit={handleApiKeySubmit}
           />
 
           <OrganizationsPanel
-          // organizations={organizations}
-          // selectedOrg={selectedOrg}
-          // isOpen={isPayrollOpen}
-          // onToggle={handleTogglePanel}
-          // onSelectOrg={setSelectedOrg}
-          // onViewDetails={handleViewDetails}
-          // formatLamports={formatLamports}
+            organizations={organizations}
+            selectedOrg={selectedOrg}
+            isOpen={isPayrollOpen}
+            onToggle={handleTogglePanel}
+            onSelectOrg={(id) => setSelectedOrg(id)}
+            onViewDetails={handleViewDetails}
+            formatLamports={formatLamports}
           />
 
           {!isPayrollOpen && (
