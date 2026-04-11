@@ -1,4 +1,4 @@
-use crate::errors::PayrollError;
+use crate::error::PayrollError;
 use crate::states::{Organization, Worker};
 use anchor_lang::prelude::*;
 
@@ -14,7 +14,10 @@ pub fn add_worker(ctx: Context<AddWorkerCtx>, salary: u64) -> Result<()> {
     worker.bump = ctx.bumps.worker;
 
     let org = &mut ctx.accounts.org;
-    org.workers_count += 1;
+    org.workers_count = org
+        .workers_count
+        .checked_add(1)
+        .ok_or(PayrollError::InvalidAmount)?;
 
     msg!(
         "Worker {} added with salary {}",

@@ -1,4 +1,4 @@
-use crate::errors::PayrollError;
+use crate::error::PayrollError;
 use crate::states::Organization;
 use anchor_lang::prelude::*;
 
@@ -22,7 +22,12 @@ pub fn withdraw(ctx: Context<WithdrawCtx>, amount: u64) -> Result<()> {
         .to_account_info()
         .try_borrow_mut_lamports()? += amount;
 
-    ctx.accounts.org.treasury -= amount;
+    ctx.accounts.org.treasury = ctx
+        .accounts
+        .org
+        .treasury
+        .checked_sub(amount)
+        .ok_or(PayrollError::InsufficientFunds)?;
     msg!("Withdrawn {} lamports from treasury", amount);
     Ok(())
 }

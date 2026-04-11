@@ -1,4 +1,4 @@
-use crate::errors::PayrollError;
+use crate::error::PayrollError;
 use crate::states::{Organization, Worker};
 use anchor_lang::prelude::*;
 
