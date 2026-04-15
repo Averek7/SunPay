@@ -22,10 +22,6 @@ interface ChatPanelProps {
     publicKey?: PublicKey | null;
     onInputChange: (value: string) => void;
     onSubmit: (e?: React.FormEvent) => void;
-    apiKeySet: boolean;
-    userApiKey: string;
-    onApiKeyChange: (value: string) => void;
-    onApiKeySubmit: (e: React.FormEvent) => void;
 }
 
 const TypingIndicator = () => (
@@ -47,10 +43,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
     publicKey,
     onInputChange,
     onSubmit,
-    apiKeySet,
-    userApiKey,
-    onApiKeyChange,
-    onApiKeySubmit,
 }) => {
     const chatRef = useRef<HTMLDivElement>(null);
     const [isFocused, setIsFocused] = useState(false);
@@ -68,13 +60,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             onSubmit();
-        }
-    };
-
-    const handleApiKeyKeyPress = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            onApiKeySubmit(e as unknown as React.FormEvent);
         }
     };
 
@@ -188,62 +173,30 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
 
             {/* Input Area */}
             <div className="p-3 sm:p-6 border-t border-slate-800/50 shrink-0 bg-linear-to-r from-slate-900/80 to-slate-800/60 backdrop-blur-sm">
-                {!apiKeySet ? (
-                    <form onSubmit={onApiKeySubmit} className="flex flex-col gap-2">
-                        <div className="flex gap-2 sm:gap-3">
-                            <div className="flex-1 relative group">
-                                <input
-                                    type="password"
-                                    value={userApiKey}
-                                    onChange={(e) => onApiKeyChange(e.target.value)}
-                                    onKeyPress={handleApiKeyKeyPress}
-                                    onFocus={() => setIsFocused(true)}
-                                    onBlur={() => setIsFocused(false)}
-                                    placeholder="Enter your OpenAI API key (sk-...)"
-                                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-sm sm:text-base text-white placeholder-slate-500 focus:outline-none focus:border-[#DC1FFF] focus:bg-slate-800/70 transition-all duration-300 disabled:opacity-50 backdrop-blur-sm"
-                                />
-                                <div className="absolute inset-0 rounded-xl bg-linear-to-r from-[#DC1FFF]/20 to-[#00FFA3]/20 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300 -z-10" />
-                            </div>
-                            <button
-                                type="submit"
-                                disabled={!userApiKey.trim()}
-                                className="relative group px-4 sm:px-6 py-2 sm:py-3 bg-linear-to-r from-[#DC1FFF] to-[#00FFA3] hover:from-[#00FFA3] hover:to-[#DC1FFF] text-black rounded-xl font-medium transition-all duration-300 transform hover:scale-105 flex items-center gap-2 disabled:opacity-50 disabled:hover:scale-100 shadow-lg hover:shadow-xl overflow-hidden whitespace-nowrap"
-                            >
-                                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
-                                <Send className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform duration-300" />
-                                <span className="hidden sm:inline relative z-10">Set Key</span>
-                            </button>
-                        </div>
-                        <p className="text-[10px] sm:text-xs text-slate-400">
-                            Your API key is stored locally and never sent to our servers. Press Enter or click Set Key to continue.
-                        </p>
-                    </form>
-                ) : (
-                    <div className={`flex gap-2 sm:gap-3 transition-all duration-300 ${isFocused ? 'scale-[1.02]' : ''}`}>
-                        <div className="flex-1 relative group">
-                            <input
-                                value={input}
-                                onChange={(e) => onInputChange(e.target.value)}
-                                onKeyPress={handleKeyPress}
-                                onFocus={() => setIsFocused(true)}
-                                onBlur={() => setIsFocused(false)}
-                                placeholder="Type your payroll command..."
-                                className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-sm sm:text-base text-white placeholder-slate-500 focus:outline-none focus:border-[#DC1FFF] focus:bg-slate-800/70 transition-all duration-300 disabled:opacity-50 backdrop-blur-sm"
-                                disabled={isLoading}
-                            />
-                            <div className="absolute inset-0 rounded-xl bg-linear-to-r from-[#DC1FFF]/20 to-[#00FFA3]/20 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300 -z-10" />
-                        </div>
-                        <button
-                            onClick={() => onSubmit()}
-                            disabled={isLoading || !input.trim()}
-                            className="relative group px-4 sm:px-6 py-2 sm:py-3 bg-linear-to-r from-[#DC1FFF] to-[#00FFA3] hover:from-[#00FFA3] hover:to-[#DC1FFF] text-black rounded-xl font-medium transition-all duration-300 transform hover:scale-105 flex items-center gap-2 disabled:opacity-50 disabled:hover:scale-100 shadow-lg hover:shadow-xl overflow-hidden"
-                        >
-                            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
-                            <Send className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform duration-300" />
-                            <span className="hidden sm:inline relative z-10">Send</span>
-                        </button>
+                <div className={`flex gap-2 sm:gap-3 transition-all duration-300 ${isFocused ? 'scale-[1.02]' : ''}`}>
+                    <div className="flex-1 relative group">
+                        <input
+                            value={input}
+                            onChange={(e) => onInputChange(e.target.value)}
+                            onKeyPress={handleKeyPress}
+                            onFocus={() => setIsFocused(true)}
+                            onBlur={() => setIsFocused(false)}
+                            placeholder="Type your payroll command..."
+                            className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-sm sm:text-base text-white placeholder-slate-500 focus:outline-none focus:border-[#DC1FFF] focus:bg-slate-800/70 transition-all duration-300 disabled:opacity-50 backdrop-blur-sm"
+                            disabled={isLoading}
+                        />
+                        <div className="absolute inset-0 rounded-xl bg-linear-to-r from-[#DC1FFF]/20 to-[#00FFA3]/20 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300 -z-10" />
                     </div>
-                )}
+                    <button
+                        onClick={() => onSubmit()}
+                        disabled={isLoading || !input.trim()}
+                        className="relative group px-4 sm:px-6 py-2 sm:py-3 bg-linear-to-r from-[#DC1FFF] to-[#00FFA3] hover:from-[#00FFA3] hover:to-[#DC1FFF] text-black rounded-xl font-medium transition-all duration-300 transform hover:scale-105 flex items-center gap-2 disabled:opacity-50 disabled:hover:scale-100 shadow-lg hover:shadow-xl overflow-hidden"
+                    >
+                        <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+                        <Send className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform duration-300" />
+                        <span className="hidden sm:inline relative z-10">Send</span>
+                    </button>
+                </div>
                 <div className="flex items-center justify-between mt-2">
                     <p className="text-[10px] sm:text-xs text-slate-500">
                         Wallet: {publicKey ? (

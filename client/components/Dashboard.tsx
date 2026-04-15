@@ -304,8 +304,6 @@ const Dashboard = () => {
   const [isPayrollOpen, setIsPayrollOpen] = useState(false);
   const [selectedOrg, setSelectedOrg] = useState<string | null>(null);
   const [organizations, setOrganizations] = useState<PayrollSummary[]>([]);
-  const [userApiKey, setUserApiKey] = useState<string>("");
-  const [apiKeySet, setApiKeySet] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -313,32 +311,17 @@ const Dashboard = () => {
 
   const CLUSTER: string = process.env.NEXT_PUBLIC_CLUSTER || "devnet";
 
-  // Initialize messages with API key requirement check
+  // Initialize assistant welcome message
   useEffect(() => {
-    const hasEnvKey = !!process.env.NEXT_PUBLIC_OPENAI_API_KEY;
-    setApiKeySet(hasEnvKey);
-
-    if (hasEnvKey) {
-      setMessages([
-        {
-          id: "initial",
-          role: "bot" as const,
-          content:
-            "Hi! I can help manage your payroll organizations. Ask me to create orgs, add workers, process payroll, or fetch details.",
-          timestamp: new Date(),
-        },
-      ]);
-    } else {
-      setMessages([
-        {
-          id: "initial",
-          role: "bot" as const,
-          content:
-            "Welcome! To get started, I need your OpenAI API key. Please enter it below to enable chat functionality.",
-          timestamp: new Date(),
-        },
-      ]);
-    }
+    setMessages([
+      {
+        id: "initial",
+        role: "bot" as const,
+        content:
+          "Hi! I can help manage your payroll organizations. Ask me to create orgs, add workers, process payroll, or fetch details.",
+        timestamp: new Date(),
+      },
+    ]);
   }, []);
 
   useEffect(() => {
@@ -404,25 +387,6 @@ const Dashboard = () => {
       loadOrganizations();
     }
   }, [publicKey]);
-
-  const handleApiKeySubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (userApiKey.trim()) {
-      setApiKeySet(true);
-      const assistantMessage: ChatMessage = {
-        id: Date.now().toString(),
-        role: "bot" as const,
-        content:
-          "Great! API key configured. Now I can help manage your payroll organizations. Ask me to create orgs, add workers, process payroll, or fetch details.",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-    }
-  };
-
-  const getActiveApiKey = () => {
-    return userApiKey || process.env.NEXT_PUBLIC_OPENAI_API_KEY || "";
-  };
 
   const generateResponse = async (userInput: string) => {
     setIsLoading(true);
@@ -500,27 +464,22 @@ const Dashboard = () => {
       let fullResponse = "";
       let iterations = 0;
       const maxIterations = 5;
-      const activeApiKey = getActiveApiKey();
 
       while (iterations < maxIterations) {
         iterations++;
 
-        const response = await fetch(
-          "https://api.openai.com/v1/chat/completions",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${activeApiKey}`,
-            },
-            body: JSON.stringify({
-              model: "gpt-4o",
-              messages: conversationMessages,
-              tools,
-              tool_choice: "auto",
-            }),
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-        );
+          body: JSON.stringify({
+            model: "gpt-4o",
+            messages: conversationMessages,
+            tools,
+            tool_choice: "auto",
+          }),
+        });
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
@@ -702,15 +661,11 @@ const Dashboard = () => {
           <ChatPanel
             messages={messages}
             input={input}
-            isLoading={isLoading || !apiKeySet}
+            isLoading={isLoading}
             isPayrollOpen={isPayrollOpen}
             publicKey={publicKey}
             onInputChange={setInput}
             onSubmit={handleSubmit}
-            apiKeySet={apiKeySet}
-            userApiKey={userApiKey}
-            onApiKeyChange={setUserApiKey}
-            onApiKeySubmit={handleApiKeySubmit}
           />
 
           <OrganizationsPanel
