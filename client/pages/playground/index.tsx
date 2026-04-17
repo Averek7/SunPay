@@ -25,6 +25,7 @@ import { Play, Zap, Shuffle, Trash2, Copy, Check } from "lucide-react";
 import Header from "@/components/Header";
 import ParticleBackground from "@/components/ParticleBackground";
 import Footer from "@/components/Footer";
+import { reportClientError } from "@/lib/telemetry";
 interface TestData {
   orgName: string;
   workerAddress: string;
@@ -83,7 +84,7 @@ const Page: React.FC = () => {
   const handleError = (error: unknown, context: string) => {
     const message = error instanceof Error ? error.message : String(error);
     addLog(`${context}: ${message}`, "error");
-    console.error(context, error);
+    reportClientError(`playground:${context}`, error);
   };
 
   const copyToClipboard = (text: string, id: string) => {

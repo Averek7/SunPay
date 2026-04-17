@@ -6,6 +6,7 @@ import OrganizationsPanel from "./OrganizationsPanel";
 import { Menu } from "lucide-react";
 import { Message, PayrollSummary, WorkerSummary } from "@/utils/interface";
 import { blockchainMcpTools, setWalletContext } from "@/lib/payroll-mcp-tools";
+import { reportClientError } from "@/lib/telemetry";
 import Footer from "./Footer";
 import { getCluster } from "@/utils/helper";
 
@@ -121,7 +122,7 @@ const getOpenAITools = () => {
         }
       }
     } catch (error) {
-      console.error(`Error parsing schema for ${name}:`, error);
+      reportClientError(`parse_tool_schema:${name}`, error);
     }
 
     return {
@@ -343,7 +344,10 @@ const Dashboard = () => {
     const loadOrganizations = async () => {
       const tool = blockchainMcpTools.fetch_user_organizations;
       if (!tool || !tool.execute) {
-        console.error("fetch_user_organizations tool not available");
+        reportClientError(
+          "load_organizations",
+          new Error("fetch_user_organizations tool not available"),
+        );
         return;
       }
 
@@ -379,7 +383,7 @@ const Dashboard = () => {
           }
         }
       } catch (error) {
-        console.error("Failed to load organizations:", error);
+        reportClientError("load_organizations", error);
       }
     };
 
@@ -537,7 +541,10 @@ const Dashboard = () => {
                 toolOutput = str;
               }
             } catch (error) {
-              console.error(`Tool execution error for ${toolName}:`, error);
+              reportClientError(`tool_execution:${toolName}`, error, {
+                toolName,
+                toolArgs,
+              });
               toolOutput = { error: (error as Error).message };
             }
 
@@ -613,7 +620,7 @@ const Dashboard = () => {
         }
       }
     } catch (error) {
-      console.error("Error generating response:", error);
+      reportClientError("generate_response", error);
       const errorMessage: ChatMessage = {
         id: Date.now().toString(),
         role: "bot" as const,

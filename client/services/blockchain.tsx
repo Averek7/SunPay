@@ -38,10 +38,6 @@ const PROGRAM_ID = new PublicKey(idlJson.address);
 const CLUSTER: string = process.env.NEXT_PUBLIC_CLUSTER || "devnet";
 const RPC_URL: string = getClusterURL(CLUSTER);
 
-console.log("Cluster:", CLUSTER);
-console.log("RPC URL:", RPC_URL);
-console.log("Program ID:", PROGRAM_ID.toBase58());
-
 interface SignerWallet {
   publicKey: PublicKey;
   signTransaction: (tx: Transaction) => Promise<Transaction>;
@@ -56,7 +52,6 @@ export const getProvider = (
   signTransaction: (tx: Transaction) => Promise<Transaction>,
 ): Program<PayrollProgram> | null => {
   if (!publicKey || !signTransaction) {
-    console.error("Wallet not connected or missing signTransaction");
     return null;
   }
 
@@ -64,7 +59,6 @@ export const getProvider = (
     !RPC_URL ||
     (!RPC_URL.startsWith("http://") && !RPC_URL.startsWith("https://"))
   ) {
-    console.error("Invalid RPC URL:", RPC_URL);
     throw new Error(
       `Invalid RPC endpoint: ${RPC_URL}. It must start with http: or https:. Check NEXT_PUBLIC_CLUSTER env var.`,
     );
@@ -99,7 +93,6 @@ export const getProviderReadonly = (): Program<PayrollProgram> => {
     !RPC_URL ||
     (!RPC_URL.startsWith("http://") && !RPC_URL.startsWith("https://"))
   ) {
-    console.error("Invalid RPC URL:", RPC_URL);
     throw new Error(
       `Invalid RPC endpoint: ${RPC_URL}. It must start with http: or https:. Check NEXT_PUBLIC_CLUSTER env var.`,
     );
