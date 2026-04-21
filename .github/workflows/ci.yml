@@ -5,10 +5,12 @@ on:
     branches:
       - main
       - frontend
+      - cloudOps
   pull_request:
     branches:
       - main
       - frontend
+      - cloudOps
 
 jobs:
   contracts:
@@ -38,6 +40,58 @@ jobs:
 
       - name: Lint contracts TS/JS
         run: npm run lint
+
+  anchor-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: contracts
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.89.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Solana CLI
+        run: |
+          sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> "$GITHUB_PATH"
+          solana --version
+
+      - name: Install Anchor CLI
+        run: |
+          cargo install --git https://github.com/coral-xyz/anchor --tag v0.32.1 avm --locked --force
+          avm install 0.32.1
+          avm use 0.32.1
+          anchor --version
+
+      - name: Install contracts dependencies
+        run: npm install
+
+      - name: Create test wallet
+        run: |
+          mkdir -p "$HOME/.config/solana"
+          solana-keygen new --no-bip39-passphrase -f -s -o "$HOME/.config/solana/id.json"
+
+      - name: Run Anchor tests
+        env:
+          ANCHOR_WALLET: ${{ github.workspace }}/.tmp-wallet.json
+        run: |
+          cp "$HOME/.config/solana/id.json" "$GITHUB_WORKSPACE/.tmp-wallet.json"
+          anchor test
+
+      - name: Cleanup wallet
+        if: always()
+        run: rm -f "$GITHUB_WORKSPACE/.tmp-wallet.json"
 
   client:
     runs-on: ubuntu-latest
